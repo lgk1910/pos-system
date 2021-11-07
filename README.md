@@ -1,7 +1,7 @@
 # Set up environment
 ## Create a virtual environment
 ```
-conda create -n db_app python-3.8
+conda create -n db_app python=3.8
 ```
 ## Install required packages
 ```
