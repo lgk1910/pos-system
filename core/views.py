@@ -1,6 +1,6 @@
 import random
 import string
-
+import time
 import stripe
 from django.conf import settings
 from django.contrib import messages
@@ -49,23 +49,23 @@ class CheckoutView(View):
                 'DISPLAY_COUPON_FORM': True
             }
 
-            shipping_address_qs = Address.objects.filter(
-                user=self.request.user,
-                address_type='S',
-                default=True
-            )
-            if shipping_address_qs.exists():
-                context.update(
-                    {'default_shipping_address': shipping_address_qs[0]})
+            # shipping_address_qs = Address.objects.filter(
+            #     user=self.request.user,
+            #     address_type='S',
+            #     default=True
+            # )
+            # if shipping_address_qs.exists():
+            #     context.update(
+            #         {'default_shipping_address': shipping_address_qs[0]})
 
-            billing_address_qs = Address.objects.filter(
-                user=self.request.user,
-                address_type='B',
-                default=True
-            )
-            if billing_address_qs.exists():
-                context.update(
-                    {'default_billing_address': billing_address_qs[0]})
+            # billing_address_qs = Address.objects.filter(
+            #     user=self.request.user,
+            #     address_type='B',
+            #     default=True
+            # )
+            # if billing_address_qs.exists():
+            #     context.update(
+            #         {'default_billing_address': billing_address_qs[0]})
             return render(self.request, "checkout.html", context)
         except ObjectDoesNotExist:
             messages.info(self.request, "You do not have an active order")
@@ -194,9 +194,15 @@ class CheckoutView(View):
                 payment_option = form.cleaned_data.get('payment_option')
 
                 if payment_option == 'S':
-                    return redirect('core:payment', payment_option='stripe')
+                    # return redirect('core:payment', payment_option='stripe')
+                    messages.info(
+                        self.request, "Successfully paid with Stripe")
+                    return redirect('/')
                 elif payment_option == 'P':
-                    return redirect('core:payment', payment_option='paypal')
+                    # return redirect('core:payment', payment_option='paypal')
+                    messages.info(
+                        self.request, "Successfully paid with Paypal")
+                    return redirect('/')
                 else:
                     messages.warning(
                         self.request, "Invalid payment option selected")
@@ -213,7 +219,7 @@ class PaymentView(View):
             context = {
                 'order': order,
                 'DISPLAY_COUPON_FORM': False,
-                'STRIPE_PUBLIC_KEY' : settings.STRIPE_PUBLIC_KEY
+                'STRIPE_PUBLIC_KEY': settings.STRIPE_PUBLIC_KEY
             }
             userprofile = self.request.user.userprofile
             if userprofile.one_click_purchasing:
